@@ -11,7 +11,7 @@ os.environ["QIANFAN_SECRET_KEY"] = "4f6933316001493d9efd93c95f331af5"
 # Create ChatCompletion instance
 chat_comp = qianfan.ChatCompletion()
 
-# Global variables: Detailed prompts with instructions for generating questions based on content
+# Prompts for generating questions and grading answers
 CHOICE_PROMPT = """
 Please read the following content carefully:\n\n{content}\n\n
 
@@ -81,10 +81,9 @@ Generate Rules:
 5. Make sure the feedback is clear, precise, and helpful. Do not include any irrelevant information, and avoid using unnecessary words or phrases.
 """
 
-
 # Extract text from Word file
-def extract_text_from_docx(file):
-    doc = Document(file)
+def extract_text_from_docx(file_path):
+    doc = Document(file_path)
     text = ""
     for para in doc.paragraphs:
         text += para.text + "\n"
@@ -124,11 +123,12 @@ def grade_answer(question, user_answer):
 # Streamlit user interface
 st.header("LLM-Based Intelligent Question-Generation and Assessment System")
 
-# Upload Word file
-uploaded_file = st.file_uploader("Upload Course Word File", type="docx")
-if uploaded_file:
-    content = extract_text_from_docx(uploaded_file)
-    st.info("Knowledge base extracted successfully!")
+# Predefined relative path for the document
+file_path = "knowledge dase - media theory.docx"
+
+if os.path.exists(file_path):
+    content = extract_text_from_docx(file_path)
+    st.info("Knowledge base loaded successfully!")
 
     # Initialize or update the current question
     if 'question' not in st.session_state:
@@ -159,3 +159,5 @@ if uploaded_file:
     if st.button("Next Question"):
         st.session_state['question'] = generate_question(content)  # Generate the next question
         st.rerun()  # Force a refresh to display the new question
+else:
+    st.error(f"The file '{file_path}' was not found. Please ensure it is in the correct directory.")
